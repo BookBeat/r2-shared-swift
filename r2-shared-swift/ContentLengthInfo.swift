@@ -19,7 +19,10 @@ public class ContentLengthInfo {
             return SpineContentLength(spineItem: tuple.spineLink, contentLength: tuple.contentLength, percentOfTotal: percent)
         })
         
-        assert(self.spineContentLengths.reduce(0, {$0 + $1.percentOfTotal}) >= 0.99999999999)
+        assert(
+            spineContentLengthTuples.count == 0 ||
+            self.spineContentLengths.reduce(0, {$0 + $1.percentOfTotal}) >= 0.99999999999
+        )
     }
     
     public let spineContentLengths: [SpineContentLength]
