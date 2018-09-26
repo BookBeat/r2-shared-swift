@@ -37,6 +37,8 @@ public extension ContentLengthInfo {
      */
     func totalProgressFor(currentDocumentIndex: Int, currentPageInDocument: Int, documentTotalPages: Int) -> Double {
         assert(spineContentLengths.count > currentDocumentIndex)
+        assert(currentPageInDocument >= 1 && currentPageInDocument <= documentTotalPages)
+
         let percentProgressionInChapter = Double(currentPageInDocument) / Double(documentTotalPages)
         return totalProgressFor(currentDocumentIndex: currentDocumentIndex, progressInDocument: percentProgressionInChapter)
     }
@@ -51,6 +53,7 @@ public extension ContentLengthInfo {
         }
         let progressionInDocumentForFullPublication = spineContentLengths[currentDocumentIndex].percentOfTotal * progressInDocument
         let totalProgression = progressionUntilChapter + progressionInDocumentForFullPublication
+        assert(totalProgression >= 0 && totalProgression <= 1.0)
         return totalProgression
     }
 }
