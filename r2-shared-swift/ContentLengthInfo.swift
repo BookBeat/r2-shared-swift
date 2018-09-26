@@ -10,6 +10,10 @@ import Foundation
 
 public class ContentLengthInfo {
     
+    enum ProgressError: Error {
+        case invalidPages
+    }
+    
     public init(spineContentLengthTuples: [(spineLink: Link, contentLength: Int)]) {
         let totalLength = spineContentLengthTuples.reduce(0, {$0 + $1.contentLength})
         self.totalLength = totalLength
@@ -35,10 +39,10 @@ public extension ContentLengthInfo {
     /**
      This method is a "medelsvenssons" total progression. It uses the content lengths of all the chapters
      */
-    func totalProgressFor(currentDocumentIndex: Int, currentPageInDocument: Int, documentTotalPages: Int) -> Double {
+    func totalProgressFor(currentDocumentIndex: Int, currentPageInDocument: Int, documentTotalPages: Int) throws -> Double {
         assert(spineContentLengths.count > currentDocumentIndex)
-        assert(currentPageInDocument >= 1 && currentPageInDocument <= documentTotalPages)
-
+        guard currentPageInDocument >= 1 && currentPageInDocument <= documentTotalPages else { throw ProgressError.invalidPages }
+        
         let percentProgressionInChapter = Double(currentPageInDocument) / Double(documentTotalPages)
         return totalProgressFor(currentDocumentIndex: currentDocumentIndex, progressInDocument: percentProgressionInChapter)
     }
