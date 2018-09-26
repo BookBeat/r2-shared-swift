@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1D294A452158FE34006C443D /* Classes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D294A442158FE34006C443D /* Classes.swift */; };
+		1D294A452158FE34006C443D /* ContentLengthInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D294A442158FE34006C443D /* ContentLengthInfo.swift */; };
+		1DFD1858215B852300CA8E1D /* SpineContentLength.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFD1857215B852300CA8E1D /* SpineContentLength.swift */; };
 		57470F7E20ED0D1A000CDCA3 /* DownloadSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57470F7D20ED0D1A000CDCA3 /* DownloadSession.swift */; };
 		AEF39DF320E3895200A560F3 /* UserProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF39DF220E3895200A560F3 /* UserProperties.swift */; };
 		F32314A21F8616C2000FCFB0 /* Drm.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32314A11F8616C2000FCFB0 /* Drm.swift */; };
@@ -39,7 +40,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1D294A442158FE34006C443D /* Classes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Classes.swift; sourceTree = "<group>"; };
+		1D294A442158FE34006C443D /* ContentLengthInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentLengthInfo.swift; sourceTree = "<group>"; };
+		1DFD1857215B852300CA8E1D /* SpineContentLength.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpineContentLength.swift; sourceTree = "<group>"; };
 		57470F7D20ED0D1A000CDCA3 /* DownloadSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadSession.swift; sourceTree = "<group>"; };
 		AEF39DF220E3895200A560F3 /* UserProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProperties.swift; sourceTree = "<group>"; };
 		F32314A11F8616C2000FCFB0 /* Drm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Drm.swift; sourceTree = "<group>"; };
@@ -87,7 +89,8 @@
 		1D294A432158FB74006C443D /* ProgressInfo */ = {
 			isa = PBXGroup;
 			children = (
-				1D294A442158FE34006C443D /* Classes.swift */,
+				1D294A442158FE34006C443D /* ContentLengthInfo.swift */,
+				1DFD1857215B852300CA8E1D /* SpineContentLength.swift */,
 			);
 			name = ProgressInfo;
 			sourceTree = "<group>";
@@ -305,7 +308,7 @@
 				F3E7D4191F4EC69100DF166D /* RootFile.swift in Sources */,
 				F3E7D4141F4EC69100DF166D /* MetadataItem.swift in Sources */,
 				AEF39DF320E3895200A560F3 /* UserProperties.swift in Sources */,
-				1D294A452158FE34006C443D /* Classes.swift in Sources */,
+				1D294A452158FE34006C443D /* ContentLengthInfo.swift in Sources */,
 				F3F41E181FA3377E00F97737 /* Price.swift in Sources */,
 				F3E7D4101F4EC69100DF166D /* Link.swift in Sources */,
 				F34CB2891FC56CAD005E3A37 /* DrmLicense.swift in Sources */,
@@ -316,6 +319,7 @@
 				F3F41E1D1FA33AAA00F97737 /* BelongsTo.swift in Sources */,
 				F3F41E1F1FA33AF800F97737 /* Collection.swift in Sources */,
 				F3B187A41FA33E1D00BB46BF /* OpdsMetadata.swift in Sources */,
+				1DFD1858215B852300CA8E1D /* SpineContentLength.swift in Sources */,
 				F32314A21F8616C2000FCFB0 /* Drm.swift in Sources */,
 				F3E7D4111F4EC69100DF166D /* MediaOverlayNode.swift in Sources */,
 				F3E7D4151F4EC69100DF166D /* MultilangString.swift in Sources */,
