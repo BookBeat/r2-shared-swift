@@ -14,7 +14,7 @@ public class ContentLengthInfo {
         assert(self.spineContentLengths.reduce(0, {$0 + $1.percentOfTotal}) >= 0.99999999999)
     }
     
-    public final var spineContentLengths: [SpineContentLength]
+    public let spineContentLengths: [SpineContentLength]
     
     public var totalLength: Int
 }
