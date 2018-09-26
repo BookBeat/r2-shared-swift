@@ -1,6 +1,7 @@
 import Foundation
 
 public class ContentLengthInfo {
+    
     public init(spineContentLengthTuples: [(spineLink: Link, contentLength: Int)]) {
         let totalLength = spineContentLengthTuples.reduce(0, {$0 + $1.contentLength})
         self.totalLength = totalLength
@@ -10,7 +11,7 @@ public class ContentLengthInfo {
             return SpineContentLength(spineItem: tuple.spineLink, contentLength: tuple.contentLength, percentOfTotal: percent)
         })
         
-        assert(self.spineContentLengths.reduce(0, {$0 + $1.percentOfTotal}) == 1.0)
+        assert(self.spineContentLengths.reduce(0, {$0 + $1.percentOfTotal}) >= 0.99999999999)
     }
     
     public final var spineContentLengths: [SpineContentLength]
