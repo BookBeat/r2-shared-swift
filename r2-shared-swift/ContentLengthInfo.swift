@@ -56,7 +56,8 @@ public extension ContentLengthInfo {
             progressionUntilChapter += element.percentOfTotal
         }
         let progressionInDocumentForFullPublication = spineContentLengths[currentDocumentIndex].percentOfTotal * progressInDocument
-        let totalProgression = progressionUntilChapter + progressionInDocumentForFullPublication
+        let totalProgression = min(progressionUntilChapter + progressionInDocumentForFullPublication, 1) //Float-addition and multiplication will sometimes yield progression greater than 1 i.e. 1.0000000000000007 or such.
+        
         assert(totalProgression >= 0 && totalProgression <= 1.0)
         return totalProgression
     }
