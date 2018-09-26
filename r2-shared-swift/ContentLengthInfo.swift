@@ -27,17 +27,19 @@ public class ContentLengthInfo {
     public var totalLength: Int
 }
 
-#if DEBUG
-private var lastProgress: Double = 0
-private var jumps = [Double]()
-#endif
-
 public extension ContentLengthInfo {
     
     /**
      This method is a "medelsvenssons" total progression. It uses the content lengths of all the chapters
      */
     func totalProgressFor(currentDocumentIndex: Int, currentPageInDocument: Int, documentTotalPages: Int) -> Double {
+        assert(spineContentLengths.count > currentDocumentIndex)
+        let percentProgressionInChapter = Double(currentPageInDocument) / Double(documentTotalPages)
+        let progressionInChapterForFullPublication = spineContentLengths[currentDocumentIndex].percentOfTotal * percentProgressionInChapter
+        return totalProgressFor(currentDocumentIndex: currentDocumentIndex, progressInDocument: progressionInChapterForFullPublication)
+    }
+    
+    func totalProgressFor(currentDocumentIndex: Int, progressInDocument: Double) -> Double {
         assert(spineContentLengths.count > currentDocumentIndex)
         
         var progressionUntilChapter: Double = 0
@@ -46,19 +48,7 @@ public extension ContentLengthInfo {
             progressionUntilChapter += element.percentOfTotal
         }
         
-        let percentProgressionInChapter = Double(currentPageInDocument) / Double(documentTotalPages)
-        
-        let progressionInChapterForFullPublication = spineContentLengths[currentDocumentIndex].percentOfTotal * percentProgressionInChapter
-        
-        let totalProgression = progressionUntilChapter + progressionInChapterForFullPublication
-        #if DEBUG
-        let jump = totalProgression - lastProgress
-        if jump > 0 {
-            jumps.append(jump)
-        }
-        print("Jump: \(jump)")
-        lastProgress = totalProgression
-        #endif
+        let totalProgression = progressionUntilChapter + progressInDocument
         return totalProgression
     }
 }
