@@ -10,6 +10,11 @@ import Foundation
 
 public class ContentLengthInfo {
     
+    public struct Progress: Equatable {
+        public let startProgress: Double
+        public let endProgress: Double
+    }
+    
     enum ProgressError: Error {
         case invalidPages
     }
@@ -37,17 +42,30 @@ public class ContentLengthInfo {
 public extension ContentLengthInfo {
     
     /**
-     This method is a "medelsvenssons" total progression. It uses the content lengths of all the chapters
+     This uses the content lengths of all the spine items to calculate progress.
      */
-    func totalProgressFor(currentDocumentIndex: Int, currentPageInDocument: Int, documentTotalPages: Int) throws -> Double {
+    func totalProgressFor(currentDocumentIndex: Int, currentPageInDocument: Int, documentTotalPages: Int) throws -> Progress {
         assert(spineContentLengths.count > currentDocumentIndex)
         guard currentPageInDocument >= 1 && currentPageInDocument <= documentTotalPages else { throw ProgressError.invalidPages }
         
-        let percentProgressionInChapter = Double(currentPageInDocument) / Double(documentTotalPages)
-        return totalProgressFor(currentDocumentIndex: currentDocumentIndex, progressInDocument: percentProgressionInChapter)
+        let progressionPreviousPage = Double(currentPageInDocument-1) / Double(documentTotalPages)
+        let progressionCurrentPage = Double(currentPageInDocument) / Double(documentTotalPages)
+        return totalProgressFor(currentDocumentIndex: currentDocumentIndex,
+                                startOfPageProgressInDocument: progressionPreviousPage,
+                                endOfPageProgressInDocument: progressionCurrentPage)
     }
     
-    func totalProgressFor(currentDocumentIndex: Int, progressInDocument: Double) -> Double {
+    /**
+     This uses the content lengths of all the spine items to calculate progress.
+     This func will always return the endProgress for the startProgress since there's no way of knowing the page sizes in this context.
+     */
+    func totalProgressFor(currentDocumentIndex: Int, progressInDocument: Double) -> Progress {
+        return totalProgressFor(currentDocumentIndex: currentDocumentIndex,
+                                startOfPageProgressInDocument: progressInDocument,
+                                endOfPageProgressInDocument: progressInDocument)
+    }
+    
+    private func totalProgressFor(currentDocumentIndex: Int, startOfPageProgressInDocument: Double, endOfPageProgressInDocument: Double) -> Progress {
         assert(spineContentLengths.count > currentDocumentIndex)
         
         var progressionUntilChapter: Double = 0
@@ -55,10 +73,16 @@ public extension ContentLengthInfo {
             if index >= currentDocumentIndex { break }
             progressionUntilChapter += element.percentOfTotal
         }
-        let progressionInDocumentForFullPublication = spineContentLengths[currentDocumentIndex].percentOfTotal * progressInDocument
-        let totalProgression = min(progressionUntilChapter + progressionInDocumentForFullPublication, 1) //Float-addition and multiplication will sometimes yield progression greater than 1 i.e. 1.0000000000000007 or such.
         
-        assert(totalProgression >= 0 && totalProgression <= 1.0)
-        return totalProgression
+        let progressionInDocumentForFullPublicationUpUntilPage = spineContentLengths[currentDocumentIndex].percentOfTotal * startOfPageProgressInDocument
+        let pageStartProgression = progressionUntilChapter + progressionInDocumentForFullPublicationUpUntilPage
+        
+        let progressionInDocumentForFullPublication = spineContentLengths[currentDocumentIndex].percentOfTotal * endOfPageProgressInDocument
+        let pageEndProgression = min(progressionUntilChapter + progressionInDocumentForFullPublication, 1) //Float-addition and multiplication will sometimes yield progression greater than 1 i.e. 1.0000000000000007 or such.
+        
+        assert(pageEndProgression >= 0 && pageEndProgression <= 1.0)
+        assert(pageStartProgression >= 0 && pageStartProgression <= pageEndProgression)
+        
+        return Progress(startProgress: pageStartProgression, endProgress: pageEndProgression)
     }
 }
