@@ -10,9 +10,11 @@ import Foundation
 
 public class ContentLengthInfo {
     
-    public struct Progress: Equatable {
-        public let startProgress: Double
-        public let endProgress: Double
+    public struct PageProgress: Equatable {
+        public let documentStartProgress: Double
+        public let documentEndProgress: Double
+        public let totalStartProgress: Double
+        public let totalEndProgress: Double
     }
     
     enum ProgressError: Error {
@@ -30,7 +32,7 @@ public class ContentLengthInfo {
         
         assert(
             spineContentLengthTuples.count == 0 ||
-            self.spineContentLengths.reduce(0, {$0 + $1.percentOfTotal}) >= 0.99999999999
+                self.spineContentLengths.reduce(0, {$0 + $1.percentOfTotal}) >= 0.99999999999
         )
     }
     
@@ -44,45 +46,50 @@ public extension ContentLengthInfo {
     /**
      This uses the content lengths of all the spine items to calculate progress.
      */
-    func totalProgressFor(currentDocumentIndex: Int, currentPageInDocument: Int, documentTotalPages: Int) throws -> Progress {
+    func pageProgressFor(currentDocumentIndex: Int, currentPageInDocument: Int, documentTotalPages: Int) throws -> PageProgress {
         assert(spineContentLengths.count > currentDocumentIndex)
         guard currentPageInDocument >= 1 && currentPageInDocument <= documentTotalPages else { throw ProgressError.invalidPages }
         
-        let progressionPreviousPage = Double(currentPageInDocument-1) / Double(documentTotalPages)
-        let progressionCurrentPage = Double(currentPageInDocument) / Double(documentTotalPages)
-        return totalProgressFor(currentDocumentIndex: currentDocumentIndex,
-                                startOfPageProgressInDocument: progressionPreviousPage,
-                                endOfPageProgressInDocument: progressionCurrentPage)
+        let documentStartProgress = Double(currentPageInDocument-1) / Double(documentTotalPages)
+        let documentEndProgress = Double(currentPageInDocument) / Double(documentTotalPages)
+        return pageProgressFor(currentDocumentIndex: currentDocumentIndex,
+                               documentStartProgress: documentStartProgress,
+                               documentEndProgress: documentEndProgress)
     }
     
     /**
      This uses the content lengths of all the spine items to calculate progress.
      This func will always return the endProgress for the startProgress since there's no way of knowing the page sizes in this context.
      */
-    func totalProgressFor(currentDocumentIndex: Int, progressInDocument: Double) -> Progress {
-        return totalProgressFor(currentDocumentIndex: currentDocumentIndex,
-                                startOfPageProgressInDocument: progressInDocument,
-                                endOfPageProgressInDocument: progressInDocument)
+    func pageProgressFor(currentDocumentIndex: Int, progressInDocument: Double) -> PageProgress {
+        return pageProgressFor(currentDocumentIndex: currentDocumentIndex,
+                               documentStartProgress: progressInDocument,
+                               documentEndProgress: progressInDocument)
     }
     
-    private func totalProgressFor(currentDocumentIndex: Int, startOfPageProgressInDocument: Double, endOfPageProgressInDocument: Double) -> Progress {
+    private func pageProgressFor(currentDocumentIndex: Int, documentStartProgress: Double, documentEndProgress: Double) -> PageProgress {
         assert(spineContentLengths.count > currentDocumentIndex)
         
-        var progressionUntilChapter: Double = 0
+        var startOfDocumentTotalProgress: Double = 0
         for (index, element) in spineContentLengths.enumerated() {
             if index >= currentDocumentIndex { break }
-            progressionUntilChapter += element.percentOfTotal
+            startOfDocumentTotalProgress += element.percentOfTotal
         }
         
-        let progressionInDocumentForFullPublicationUpUntilPage = spineContentLengths[currentDocumentIndex].percentOfTotal * startOfPageProgressInDocument
-        let pageStartProgression = progressionUntilChapter + progressionInDocumentForFullPublicationUpUntilPage
+        let documentLengthPercentOfTotal = spineContentLengths[currentDocumentIndex].percentOfTotal
         
-        let progressionInDocumentForFullPublication = spineContentLengths[currentDocumentIndex].percentOfTotal * endOfPageProgressInDocument
-        let pageEndProgression = min(progressionUntilChapter + progressionInDocumentForFullPublication, 1) //Float-addition and multiplication will sometimes yield progression greater than 1 i.e. 1.0000000000000007 or such.
+        let pageStartPercentOfTotal = documentLengthPercentOfTotal * documentStartProgress
+        let pageStartTotalProgress = startOfDocumentTotalProgress + pageStartPercentOfTotal
         
-        assert(pageEndProgression >= 0 && pageEndProgression <= 1.0)
-        assert(pageStartProgression >= 0 && pageStartProgression <= pageEndProgression)
+        let pageEndPercentOfTotal = documentLengthPercentOfTotal * documentEndProgress
+        let pageEndTotalProgress = min(startOfDocumentTotalProgress + pageEndPercentOfTotal, 1) //Float-addition and multiplication will sometimes yield progression greater than 1 i.e. 1.0000000000000007 or such.
         
-        return Progress(startProgress: pageStartProgression, endProgress: pageEndProgression)
+        assert(pageEndTotalProgress >= 0 && pageEndTotalProgress <= 1.0)
+        assert(pageStartTotalProgress >= 0 && pageStartTotalProgress <= pageEndTotalProgress)
+        
+        return PageProgress.init(documentStartProgress: documentStartProgress,
+                                 documentEndProgress: documentEndProgress,
+                                 totalStartProgress: pageStartTotalProgress,
+                                 totalEndProgress: pageEndTotalProgress)
     }
 }
