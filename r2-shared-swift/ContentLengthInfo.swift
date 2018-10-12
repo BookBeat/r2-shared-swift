@@ -17,8 +17,14 @@ public class ContentLengthInfo {
         public let totalEndProgress: Double
     }
     
-    enum ProgressError: Error {
+    public struct PublicationPosition {
+        public let documentIndex: Int
+        public let progressInDocument: Double
+    }
+    
+    enum ContentError: Error {
         case invalidPages
+        case noSpineInfo
     }
     
     public init(spineContentLengthTuples: [(spineLink: Link, contentLength: Int)]) {
@@ -48,7 +54,7 @@ public extension ContentLengthInfo {
      */
     func pageProgressFor(currentDocumentIndex: Int, currentPageInDocument: Int, documentTotalPages: Int) throws -> PageProgress {
         assert(spineContentLengths.count > currentDocumentIndex)
-        guard currentPageInDocument >= 1 && currentPageInDocument <= documentTotalPages else { throw ProgressError.invalidPages }
+        guard currentPageInDocument >= 1 && currentPageInDocument <= documentTotalPages else { throw ContentError.invalidPages }
         
         let documentStartProgress = Double(currentPageInDocument-1) / Double(documentTotalPages)
         let documentEndProgress = Double(currentPageInDocument) / Double(documentTotalPages)
@@ -87,9 +93,46 @@ public extension ContentLengthInfo {
         assert(pageEndTotalProgress >= 0 && pageEndTotalProgress <= 1.0)
         assert(pageStartTotalProgress >= 0 && pageStartTotalProgress <= pageEndTotalProgress)
         
-        return PageProgress.init(documentStartProgress: documentStartProgress,
-                                 documentEndProgress: documentEndProgress,
-                                 totalStartProgress: pageStartTotalProgress,
-                                 totalEndProgress: pageEndTotalProgress)
+        return PageProgress(documentStartProgress: documentStartProgress,
+                            documentEndProgress: documentEndProgress,
+                            totalStartProgress: pageStartTotalProgress,
+                            totalEndProgress: pageEndTotalProgress)
     }
+    
+    
+    func positionFor(totalStartProgress: Double) throws -> PublicationPosition {
+        guard spineContentLengths.count > 0 else { throw ContentError.noSpineInfo }
+        var theSpineInfo: SpineContentLength!
+        var documentIndex = -1
+        var startOfDocumentTotalProgress: Double = 0
+        
+        for (index, element) in spineContentLengths.enumerated() {
+            
+            if let previous = theSpineInfo {
+                startOfDocumentTotalProgress += previous.percentOfTotal
+            }
+            
+            theSpineInfo = element
+            documentIndex = index
+            
+            if totalStartProgress < startOfDocumentTotalProgress + element.percentOfTotal &&
+                totalStartProgress >= startOfDocumentTotalProgress {
+                break
+            }
+        }
+        
+        assert(totalStartProgress < startOfDocumentTotalProgress + theSpineInfo.percentOfTotal)
+        assert(totalStartProgress >= startOfDocumentTotalProgress)
+
+        let totalPercentIntoDocument = (totalStartProgress - startOfDocumentTotalProgress)
+        
+        let percentInDocument = totalPercentIntoDocument / theSpineInfo.percentOfTotal
+        
+        return PublicationPosition(documentIndex: documentIndex, progressInDocument: percentInDocument)
+    }
+    
+    /*
+     
+ 
+ */
 }
