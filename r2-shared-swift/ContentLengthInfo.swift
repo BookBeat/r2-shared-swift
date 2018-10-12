@@ -99,40 +99,26 @@ public extension ContentLengthInfo {
                             totalEndProgress: pageEndTotalProgress)
     }
     
-    
     func positionFor(totalStartProgress: Double) throws -> PublicationPosition {
         guard spineContentLengths.count > 0 else { throw ContentError.noSpineInfo }
-        var theSpineInfo: SpineContentLength!
-        var documentIndex = -1
+        guard var theSpineInfo = spineContentLengths.first else { throw ContentError.noSpineInfo }
+        var documentIndex = 0
         var startOfDocumentTotalProgress: Double = 0
         
-        for (index, element) in spineContentLengths.enumerated() {
+        while totalStartProgress >= startOfDocumentTotalProgress + theSpineInfo.percentOfTotal {
+            let previousSpineInfo = theSpineInfo
             
-            if let previous = theSpineInfo {
-                startOfDocumentTotalProgress += previous.percentOfTotal
-            }
-            
-            theSpineInfo = element
-            documentIndex = index
-            
-            if totalStartProgress < startOfDocumentTotalProgress + element.percentOfTotal &&
-                totalStartProgress >= startOfDocumentTotalProgress {
-                break
-            }
+            documentIndex += 1
+            theSpineInfo = spineContentLengths[documentIndex]
+            startOfDocumentTotalProgress += previousSpineInfo.percentOfTotal
         }
         
         assert(totalStartProgress < startOfDocumentTotalProgress + theSpineInfo.percentOfTotal)
         assert(totalStartProgress >= startOfDocumentTotalProgress)
-
+        
         let totalPercentIntoDocument = (totalStartProgress - startOfDocumentTotalProgress)
+        let progressInDocument = totalPercentIntoDocument / theSpineInfo.percentOfTotal
         
-        let percentInDocument = totalPercentIntoDocument / theSpineInfo.percentOfTotal
-        
-        return PublicationPosition(documentIndex: documentIndex, progressInDocument: percentInDocument)
+        return PublicationPosition(documentIndex: documentIndex, progressInDocument: progressInDocument)
     }
-    
-    /*
-     
- 
- */
 }
