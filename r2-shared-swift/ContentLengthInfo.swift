@@ -88,7 +88,7 @@ public extension ContentLengthInfo {
         let pageStartTotalProgress = startOfDocumentTotalProgress + pageStartPercentOfTotal
         
         let pageEndPercentOfTotal = documentLengthPercentOfTotal * documentEndProgress
-        let pageEndTotalProgress = min(startOfDocumentTotalProgress + pageEndPercentOfTotal, 1) //Float-addition and multiplication will sometimes yield progression greater than 1 i.e. 1.0000000000000007 or such.
+        let pageEndTotalProgress = min(startOfDocumentTotalProgress + pageEndPercentOfTotal, 1) // Float-addition and multiplication will sometimes yield progression greater than 1 i.e. 1.0000000000000007 or such.
         
         assert(pageEndTotalProgress >= 0 && pageEndTotalProgress <= 1.0)
         assert(pageStartTotalProgress >= 0 && pageStartTotalProgress <= pageEndTotalProgress)
@@ -108,19 +108,21 @@ public extension ContentLengthInfo {
         while totalStartProgress >= startOfDocumentTotalProgress + theSpineInfo.percentOfTotal {
             let previousSpineInfo = theSpineInfo
             
-            if documentIndex == spineContentLengths.count-1 { break } //We're at the last item. This will happend if totalStartProgress is 1.0. By our rules 1.0 should resolve as the first page of the next document, but there is no next document.
+            if documentIndex == spineContentLengths.count-1 { break } // We're at the last item. This will happend if totalStartProgress is 1.0. By our rules 1.0 should resolve as the first page of the next document, but there is no next document.
             documentIndex += 1
             theSpineInfo = spineContentLengths[documentIndex]
             startOfDocumentTotalProgress += previousSpineInfo.percentOfTotal
         }
         
-        //The totalStartProgress can be == or even > than startOfDocumentTotalProgress + theSpineInfo.percentOfTotal if we jump to 1.0 progress. Because of float-reasons startOfDocumentTotalProgress + theSpineInfo.percentOfTotal will sometimes resolve in 0.9999999999999999 instead of 1 in these cases. Therefore we add a small fraction in this assert
+        // The totalStartProgress can be == or even > than startOfDocumentTotalProgress + theSpineInfo.percentOfTotal if we jump to 1.0 progress. Because of float-reasons startOfDocumentTotalProgress + theSpineInfo.percentOfTotal will sometimes resolve in 0.9999999999999999 instead of 1 in these cases. Therefore we add a small fraction in this assert
         assert(totalStartProgress < startOfDocumentTotalProgress + theSpineInfo.percentOfTotal + 0.000000000000001)
         assert(totalStartProgress >= startOfDocumentTotalProgress)
         
         let totalPercentIntoDocument = (totalStartProgress - startOfDocumentTotalProgress)
-        let progressInDocument = min(totalPercentIntoDocument / theSpineInfo.percentOfTotal, 1) //For Float division purposes when jumping to totalStartProgress 1.0
+        let progressInDocument = min(totalPercentIntoDocument / theSpineInfo.percentOfTotal, 1) // For Float division purposes when jumping to totalStartProgress 1.0
         
         return PublicationPosition(documentIndex: documentIndex, progressInDocument: progressInDocument)
     }
 }
+
+
