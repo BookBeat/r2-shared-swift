@@ -31,14 +31,19 @@ public class ContentLengthInfo {
         let totalLength = spineContentLengthTuples.reduce(0, {$0 + $1.contentLength})
         self.totalLength = totalLength
         
-        self.spineContentLengths = spineContentLengthTuples.map({ (tuple) -> SpineContentLength in
+        guard totalLength > 0 else {
+            spineContentLengths = []
+            return
+        }
+        
+        spineContentLengths = spineContentLengthTuples.map({ (tuple) -> SpineContentLength in
             let percent = Double(tuple.contentLength) / Double(totalLength)
             return SpineContentLength(spineItem: tuple.spineLink, contentLength: tuple.contentLength, percentOfTotal: percent)
         })
         
         assert(
             spineContentLengthTuples.count == 0 ||
-                self.spineContentLengths.reduce(0, {$0 + $1.percentOfTotal}) >= 0.99999999999
+                spineContentLengths.reduce(0, {$0 + $1.percentOfTotal}) >= 0.99999999999
         )
     }
     

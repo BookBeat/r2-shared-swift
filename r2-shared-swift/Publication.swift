@@ -17,7 +17,7 @@ import ObjectMapper
 /// It is created by the `EpubParser` from an EPUB file or directory.
 /// As it is extended by `Mappable`, it can be deserialized to `JSON`.
 public class Publication {
-    public var contentLengthInfo: ContentLengthInfo = ContentLengthInfo.init(spineContentLengthTuples: [])
+    public var contentLengthInfo: ContentLengthInfo = ContentLengthInfo(spineContentLengthTuples: [])
     /// The version of the publication, if the type needs any.
     public var version: Double
     /// The metadata (title, identifier, contributors, etc.).
