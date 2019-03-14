@@ -24,7 +24,7 @@ public class ContentLengthInfo {
     
     enum ContentError: Error {
         case invalidPages
-        case noSpineInfo
+        case noSpineContentLengthInfo
     }
     
     public init(spineContentLengthTuples: [(spineLink: Link, contentLength: Int)]) {
@@ -58,12 +58,11 @@ public extension ContentLengthInfo {
      This uses the content lengths of all the spine items to calculate progress.
      */
     func pageProgressFor(currentDocumentIndex: Int, currentPageInDocument: Int, documentTotalPages: Int) throws -> PageProgress {
-        assert(spineContentLengths.count > currentDocumentIndex)
         guard currentPageInDocument >= 1 && currentPageInDocument <= documentTotalPages else { throw ContentError.invalidPages }
         
         let documentStartProgress = Double(currentPageInDocument-1) / Double(documentTotalPages)
         let documentEndProgress = Double(currentPageInDocument) / Double(documentTotalPages)
-        return pageProgressFor(currentDocumentIndex: currentDocumentIndex,
+        return try pageProgressFor(currentDocumentIndex: currentDocumentIndex,
                                documentStartProgress: documentStartProgress,
                                documentEndProgress: documentEndProgress)
     }
@@ -72,14 +71,14 @@ public extension ContentLengthInfo {
      This uses the content lengths of all the spine items to calculate progress.
      This func will always return the endProgress for the startProgress since there's no way of knowing the page sizes in this context.
      */
-    func pageProgressFor(currentDocumentIndex: Int, progressInDocument: Double) -> PageProgress {
-        return pageProgressFor(currentDocumentIndex: currentDocumentIndex,
+    func pageProgressFor(currentDocumentIndex: Int, progressInDocument: Double) throws -> PageProgress {
+        return try pageProgressFor(currentDocumentIndex: currentDocumentIndex,
                                documentStartProgress: progressInDocument,
                                documentEndProgress: progressInDocument)
     }
     
-    private func pageProgressFor(currentDocumentIndex: Int, documentStartProgress: Double, documentEndProgress: Double) -> PageProgress {
-        assert(spineContentLengths.count > currentDocumentIndex)
+    private func pageProgressFor(currentDocumentIndex: Int, documentStartProgress: Double, documentEndProgress: Double) throws -> PageProgress {
+        guard spineContentLengths.count > currentDocumentIndex else { throw ContentError.noSpineContentLengthInfo }
         
         var startOfDocumentTotalProgress: Double = 0
         for (index, element) in spineContentLengths.enumerated() {
@@ -105,8 +104,8 @@ public extension ContentLengthInfo {
     }
     
     func positionFor(totalStartProgress: Double) throws -> PublicationPosition {
-        guard spineContentLengths.count > 0 else { throw ContentError.noSpineInfo }
-        guard var theSpineInfo = spineContentLengths.first else { throw ContentError.noSpineInfo }
+        guard spineContentLengths.count > 0 else { throw ContentError.noSpineContentLengthInfo }
+        guard var theSpineInfo = spineContentLengths.first else { throw ContentError.noSpineContentLengthInfo }
         var documentIndex = 0
         var startOfDocumentTotalProgress: Double = 0
         
