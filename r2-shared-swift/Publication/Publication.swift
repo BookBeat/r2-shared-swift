@@ -21,7 +21,10 @@ import Foundation
 ///   - shortcuts to various publication resources to be used by the Streamer and Navigator
 ///   - additional metadata not part of the RWPM
 public class Publication: WebPublication, Loggable {
-
+    
+    /// This is added by BookBeat to be able to calculate progression granulary
+    public var contentLengthInfo: ContentLengthInfo = ContentLengthInfo(spineContentLengthTuples: [])
+    
     /// Format of the publication, if specified.
     public var format: Format = .unknown
     /// Version of the publication's format, eg. 3 for EPUB 3
